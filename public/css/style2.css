@@ -1,0 +1,18 @@
+.comment-frame {
+    margin-top: 15px;
+    font-size: 1rem;
+}
+
+.comment-tools {
+    margin: 0;
+}
+
+.sub-comment {
+    margin-top: 20px;
+    margin-left: 40px;
+    /* border-left: 2px solid gray; */
+}
+
+.sub-comment-frame {
+    margin-top: 15px;;
+}

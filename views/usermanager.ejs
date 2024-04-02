@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('layouts/header') %> 
+    <body>
+        <!-- Navigation-->
+        <%- include('layouts/navbar') %> 
+        <!-- Page Header-->
+        <header class="masthead" style="background-image: url('img/about-bg.jpg')">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="page-heading">
+                            <h1>User Control Panel</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Main Content-->
+        <main class="mb-4">
+            <div class="container ">
+                <div class="row">
+                    <div class="col-sm-2">User type:</div>
+                    <div class="col-sm-6">
+                        <select class="form-select" id="user-Type" name="userType" style="width: 150px;">
+                            <option value="-1">--All--</option>
+                            <option value="admin">admin</option>
+                            <option value="user">user</option>
+                          </select>
+                    </div>
+                    <div class="col-sm-4 text-end">
+                        <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUser">
+                            <i class="fa fa-plus fa-lg"></i>  Add new user
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="font-size: 16px; margin-top: 15px;">
+                    <div class="col-sm-12">
+                        <table class="table table-bordered table-sm table-hover">
+                            <thead class="text-center">
+                                <tr>
+                                    <th style="width: 25%;">ID</th>
+                                    <th style="width: 30%;">Username</th>
+                                    <th style="width: 15%;">Type</th>
+                                    <th style="width: 15%;">Active</th>
+                                    <th>#</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (users) { %>
+                                    <% users.forEach(user => { %>
+                                        <tr>
+                                            <td><%= user._id %> </td>
+                                            <td><%= user.username %> </td>
+                                            <td><%= user.usertype %> </td>
+                                            <td><%= user.active === true ? "Actived" : "Locked" %> </td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm" title="Edit User"
+                                                    id="<%= user._id %>"
+                                                    data-username="<%= user.username %>"
+                                                    data-usertype="<%= user.usertype %>"
+                                                    data-active="<%= user.active %>"
+                                                    onclick="edit('<%= user._id %>')"
+                                                >
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
+                                                &nbsp;
+                                                <button type="button" class="btn btn-sm" title="Delete User"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteUser"
+                                                    onclick="document.getElementById('__id').value = '<%= user._id %>'"
+                                                >
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center">No data</td>
+                                    </tr>
+                                <% } %>   
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal Add User -->
+                <div class="modal" id="addUser" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                  
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Add User</h4>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                  
+                        <!-- Modal body -->
+                        <div class="modal-body" style="font-size: 16px;">
+                            <form action="/user/add" method="POST">
+                                <div class="form-floating">
+                                    <input class="form-control" id="add-username" name="username" type="text" placeholder="Enter username" />
+                                    <label for="add-username">Username</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input class="form-control" id="add-password" name="password" type="password" placeholder="Enter password" />
+                                    <label for="add-password">Password</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" id="add-usertype" name="usertype">
+                                        <option value="user">user</option>
+                                        <option value="admin">admin</option>
+                                    </select>
+                                    <label for="add-usertype" class="form-label" style="font-size: 20px;">Select User Type:</label>
+                                </div>
+                                <br />
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="add-active" name="active" value="true" checked>
+                                    <label class="form-check-label" for="add-active">Active User</label>
+                                </div>
+                                <br />
+                                <div class="text-center">
+                                    <button class="btn btn-primary text-uppercase" id="submitButton" type="submit">SUBMIT</button>
+                                </div>
+                            </form>
+                        </div>
+                  
+                        <!-- Modal footer -->
+                        <!-- <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div> -->
+                  
+                      </div>
+                    </div>
+                </div>
+
+                <!-- Modal Edit User -->
+                <div class="modal" id="editUser" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                  
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Edit User</h4>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                  
+                        <!-- Modal body -->
+                        <div class="modal-body" style="font-size: 16px;">
+                            <form action="/user/edit" method="POST">
+                                <div class="form-floating">
+                                    <input class="form-control" id="_id" name="_id" type="text" placeholder="" readonly="readonly" />
+                                    <label for="_id">ID</label>
+                                </div>
+                                <br />
+                                <div class="form-floating">
+                                    <input class="form-control" id="edit-username" name="username" type="text" placeholder="Enter username" />
+                                    <label for="edit-username">Username</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" id="edit-usertype" name="usertype">
+                                        <option value="user">user</option>
+                                        <option value="admin">admin</option>
+                                    </select>
+                                    <label for="edit-usertype" class="form-label" style="font-size: 20px;">Select User Type:</label>
+                                </div>
+                                <br />
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="edit-active" name="active" onchange="setValueEditActive()">
+                                    <label class="form-check-label" for="edit-active">Active User</label>
+                                </div>
+                                <br />
+                                <div class="text-center">
+                                    <button class="btn btn-primary text-uppercase" id="submitButton" type="submit">SUBMIT</button>                    
+                                </div>
+                            </form>
+                        </div>
+                  
+                      </div>
+                    </div>
+                </div>
+
+                <!-- Dialog Delete User -->
+                <div class="modal" id="deleteUser">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                  
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Delete User</h4>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                  
+                        <!-- Modal body -->
+                        <div class="modal-body" style="font-size: 16px;">
+                            <form action="/user/delete" method="POST">
+                                <div class="form-floating">
+                                    <input class="form-control" id="__id" name="_id" type="text" placeholder="" readonly="readonly" />
+                                    <label for="__id">ID user</label>
+                                </div>
+                                <p>Are you sure?</p>
+                                <div class="text-center">
+                                    <button class="btn btn-primary text-uppercase" id="submitButton" type="submit">Yes</button> &nbsp;
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+                                </div>
+                            </form>
+                        </div>
+                  
+                      </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <!-- Footer-->
+        <%- include('layouts/footer') %> 
+        <%- include('layouts/scripts') %>         
+        <script src="/js/usermanager.js"></script>
+    </body>
+</html>

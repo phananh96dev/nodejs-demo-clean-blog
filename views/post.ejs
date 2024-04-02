@@ -1,0 +1,142 @@
+<% 
+    var detailPost = dataPost.detailPost;
+    var listComment = dataPost.listComment;
+    var rootComments = listComment.filter(item => item.level == 1);
+    var childComments = listComment.filter(item => item.level == 2);
+%> 
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('layouts/header'); %> 
+    <body>
+        <!-- Navigation-->
+        <%- include('layouts/navbar'); %> 
+        <!-- Page Header-->
+        <header class="masthead" style="background-image: url('<%= detailPost.image.trim() %>')">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="post-heading">
+                            <h1><%= detailPost.title %> </h1>
+                            <!-- <h2 class="subheading">Problems look mighty small from 150 miles up</h2> -->
+                            <span class="meta">
+                                Posted by
+                                <%= detailPost.username %> 
+                                on <%= detailPost.datePosted.toDateString() %> 
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Post Content-->
+        <article class="mb-4">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <%= detailPost.body %> 
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <hr style="width: 60%; margin: auto;" />
+
+        <!-- Post Comments -->
+        <article class="mb-4 comment-frame">
+            <div class="container px-4 px-lg-5">
+                <!-- Send a root comment -->
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-12 col-lg-2 col-xl-9">
+                        <h5>Comment (<%= detailPost.totalComment %>)</h5>
+                        <form action="/comment/addroot" method="POST">
+                            <input type="hidden" id="comment_postid" name="postId" value="<%= detailPost._id %>" />
+                            <input type="hidden" id="comment_username" name="username" value="<%= userName %>" />
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" id="comment_content" name="content" placeholder="Type your comment" rows="2"></textarea>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button class="btn btn-primary btn-sm text-uppercase" id="submitButton" type="submit">Send</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Display all comment -->
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-12 col-lg-2 col-xl-9">
+
+                        <% if (rootComments) { %>
+                            <% rootComments.forEach(rootcmt => { %>
+                                <div>
+                                    <p><strong><%= rootcmt.username %> </strong>&nbsp;<%= rootcmt.content %> </p>
+                                    <div>
+                                        <a href=""><i class="fa fa-thumbs-up"></i> <span><%= rootcmt.like %> </span></a>&emsp;
+                                        <a href=""><i class="fa fa-thumbs-down"></i> <span><%= rootcmt.dislike %> </span></a>&emsp;
+                                        <a data-bs-toggle="collapse" href="#sub-<%= rootcmt._id %>" aria-expanded="false" >Reply</a>&emsp;
+                                        <span><%= rootcmt.dateComment.toDateString() %></span>
+                                    </div>
+                                    <div class="collapse sub-comment-frame" id="sub-<%= rootcmt._id %>">
+                                        <form action="/comment/addreply" method="POST">
+                                            <input type="hidden" id="sub-comment_postid" name="postId" value="<%= detailPost._id %>" />
+                                            <input type="hidden" id="sub-comment_username" name="username" value="<%= userName %>" />
+                                            <input type="hidden" id="sub-comment_parentId" name="parentId" value="<%= rootcmt._id %>" />
+                                            <div class="row">
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" id="sub-comment_content" name="content" placeholder="Type your comment" rows="2"></textarea>
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <button class="btn btn-primary btn-sm text-uppercase" id="submitButton" type="submit">Send</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <% var subThisComments = childComments.filter(item => item.parentId == rootcmt._id) %> 
+
+                                <% if (subThisComments) { %>
+                                    <% subThisComments.forEach(childcmt => { %>
+                                        <div class="sub-comment">
+                                            <div>
+                                                <p><strong><%= childcmt.username %> </strong>&nbsp;<%= childcmt.content %> </p>
+                                                <div>
+                                                    <a href=""><i class="fa fa-thumbs-up"></i> <span><%= childcmt.like %> </span></a>&emsp;
+                                                    <a href=""><i class="fa fa-thumbs-down"></i> <span><%= childcmt.dislike %> </span></a>&emsp;
+                                                    <a data-bs-toggle="collapse" href="#sub-<%= childcmt._id %>" aria-expanded="false">Reply</a>&emsp;
+                                                    <span><%= childcmt.dateComment.toDateString() %></span>
+                                                </div>
+                                                <div class="collapse sub-comment-frame" id="sub-<%= childcmt._id %>">
+                                                    <form action="/comment/addreply" method="POST">
+                                                        <input type="hidden" id="sub-comment_postid" name="postId" value="<%= detailPost._id %>" />
+                                                        <input type="hidden" id="sub-comment_username" name="username" value="<%= userName %>" />
+                                                        <input type="hidden" id="sub-comment_parentId" name="parentId" value="<%= rootcmt._id %>" />
+                                                        <div class="row">
+                                                            <div class="col-sm-10">
+                                                                <textarea class="form-control" id="sub-comment_content" name="content" placeholder="Type your comment" rows="2"></textarea>
+                                                            </div>
+                                                            <div class="col-sm-2">
+                                                                <button class="btn btn-primary btn-sm text-uppercase" id="submitButton" type="submit">Send</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                <% } %>
+                                
+                            <% }) %>
+                        <% } %>
+                    </div>
+                </div>
+
+                
+            </div>
+        </article>
+
+        <!-- Footer-->
+        <%- include('layouts/footer'); %> 
+        <%- include('layouts/scripts'); %> 
+    </body>
+</html>
